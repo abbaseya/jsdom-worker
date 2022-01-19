@@ -11,7 +11,6 @@
   },
   "scripts": {
     "build": "microbundle --external all",
-    "build-eslint": "NODE_ENV=production node esbuild.config.js",
     "test": "eslint src test && npm run -s build && jest",
     "prepare": "npm run -s build && npm t",
     "release": "npm t && git commit -am \"$npm_package_version\" && git tag $npm_package_version && git push && git push --tags && npm publish"
@@ -51,7 +50,6 @@
     "@babel/preset-env": "^7.10.2",
     "babel-jest": "^26.0.1",
     "cross-fetch": "^3.1.4",
-    "esbuild": "^0.14.11",
     "eslint": "^7.2.0",
     "eslint-config-developit": "^1.1.1",
     "jest": "^26.0.1",
