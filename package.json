@@ -2,11 +2,10 @@
   "name": "jsdom-worker",
   "version": "0.2.1",
   "description": "Experimental Web Worker API implementation for JSDOM.",
-  "main": "dist/jsdom-worker.js",
-  "module": "dist/jsdom-worker.module.js",
-  "unpkg": "dist/jsdom-worker.umd.js",
+  "browser": "dist/jsdom-worker.js",
   "scripts": {
-    "build": "microbundle --external all",
+    "build": "NODE_ENV=production node esbuild.config.js",
+    "build-dev": "node esbuild.config.js",
     "test": "eslint src test && npm run -s build && jest",
     "prepare": "npm run -s build && npm t",
     "release": "npm t && git commit -am \"$npm_package_version\" && git tag $npm_package_version && git push && git push --tags && npm publish"
@@ -31,6 +30,13 @@
     "extends": "eslint-config-developit"
   },
   "author": "Jason Miller <jason@developit.ca> (http://jasonformat.com)",
+  "contributors": [
+    {
+      "name": "Ahmed Abbas",
+      "email": "me@abbas.guru",
+      "url": "https://abbas.guru"
+    }
+  ],
   "license": "MIT",
   "files": [
     "dist"
@@ -38,14 +44,14 @@
   "devDependencies": {
     "@babel/preset-env": "^7.10.2",
     "babel-jest": "^26.0.1",
+    "cross-fetch": "^3.1.4",
+    "esbuild": "^0.14.11",
     "eslint": "^7.2.0",
     "eslint-config-developit": "^1.1.1",
-    "jest": "^26.0.1",
-    "microbundle": "^0.12.1",
-    "node-fetch": "^2.6.0"
+    "jest": "^26.0.1"
   },
   "peerDependencies": {
-    "node-fetch": "*"
+    "cross-fetch": "*"
   },
   "dependencies": {
     "mitt": "^1.1.3",

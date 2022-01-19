@@ -1,6 +1,6 @@
 import mitt from 'mitt';
 import uuid from 'uuid-v4';
-import fetch, { Response } from 'node-fetch';
+import fetch, { Response } from 'cross-fetch';
 
 if (!global.URL) global.URL = {};
 if (!global.URL.$$objects) {
