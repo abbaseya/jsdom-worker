@@ -2,15 +2,16 @@
   "name": "jsdom-worker",
   "version": "0.2.1",
   "description": "Experimental Web Worker API implementation for JSDOM.",
-  "main": "index.js",
-  "browser": "dist/jsdom-worker.js",
+  "main": "dist/jsdom-worker.js",
+  "module": "dist/jsdom-worker.module.js",
+  "unpkg": "dist/jsdom-worker.umd.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com:abbaseya/jsdom-worker.git"
   },
   "scripts": {
-    "build": "NODE_ENV=production node esbuild.config.js",
-    "build-dev": "node esbuild.config.js",
+    "build": "microbundle --external all",
+    "build-eslint": "NODE_ENV=production node esbuild.config.js",
     "test": "eslint src test && npm run -s build && jest",
     "prepare": "npm run -s build && npm t",
     "release": "npm t && git commit -am \"$npm_package_version\" && git tag $npm_package_version && git push && git push --tags && npm publish"
@@ -53,7 +54,8 @@
     "esbuild": "^0.14.11",
     "eslint": "^7.2.0",
     "eslint-config-developit": "^1.1.1",
-    "jest": "^26.0.1"
+    "jest": "^26.0.1",
+    "microbundle": "^0.12.1"
   },
   "peerDependencies": {
     "cross-fetch": "*"

@@ -15,10 +15,10 @@ build({
 	legalComments: environment == 'production' ? 'none' : 'inline',
 	drop: environment == 'production' ? ['debugger', 'console'] : [],
 	minify: environment == 'production',
-	platform: process.env.ESBUILD_PLATFORM || 'browser',
-	format: process.env.ESBUILD_FORMAT || 'iife',
+	platform: process.env.ESBUILD_PLATFORM || 'node',
+	format: process.env.ESBUILD_FORMAT || 'cjs',
 	sourcemap: environment == 'production',
-	target: process.env.ESBUILD_TARGET || 'es2015',
+	target: process.env.ESBUILD_TARGET || 'node14',
 	inject: process.env.ESBUILD_INJECT ? process.env.ESBUILD_INJECT.split(',') : [],
 	external: process.env.ESBUILD_EXTERNAL ? process.env.ESBUILD_EXTERNAL.split(',') : [],
 	mainFields: process.env.ESBUILD_MAIN_FIELDS ? process.env.ESBUILD_MAIN_FIELDS.split(',') : [ 'browser', 'main', 'module' ]
