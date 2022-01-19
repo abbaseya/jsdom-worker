@@ -2,7 +2,12 @@
   "name": "jsdom-worker",
   "version": "0.2.1",
   "description": "Experimental Web Worker API implementation for JSDOM.",
+  "main": "index.js",
   "browser": "dist/jsdom-worker.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com:abbaseya/jsdom-worker.git"
+  },
   "scripts": {
     "build": "NODE_ENV=production node esbuild.config.js",
     "build-dev": "node esbuild.config.js",
