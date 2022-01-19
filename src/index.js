@@ -17,7 +17,7 @@ if (!global.fetch || !global.fetch.jsdomWorker) {
 	global.fetch = function(url, opts) {
 		if (url.match(/^blob:/)) {
 			return new Promise( (resolve, reject) => {
-				let fr = new FileReader();
+				let fr = new global.window.FileReader();
 				fr.onload = () => {
 					let Res = global.Response || Response;
 					resolve(new Res(fr.result, { status: 200, statusText: 'OK' }));
