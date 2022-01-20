@@ -87,7 +87,7 @@ global.Worker = function Worker(url) {
 			let vars = 'var self=this,global=self';
 			for (let k in scope) vars += `,${k}=self.${k}`;
 			getScopeVar = Function(
-				vars + ';\n' + code + '\nreturn function(n){console.log("in worker:",arguments);return n=="onmessage"?onmessage:null;}'
+				vars + ';\n' + code + '\nreturn function(n){return n=="onmessage"?onmessage:null;}'
 			).call(scope);
 			let q = messageQueue;
 			messageQueue = null;
