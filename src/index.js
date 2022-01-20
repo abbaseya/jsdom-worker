@@ -1,6 +1,8 @@
 import mitt from 'mitt';
 import uuid from 'uuid-v4';
 import fetch, { Response } from 'cross-fetch';
+import fs from 'fs';
+const vm = require('vm');// vm must be in the global context to work properly
 
 if (!global.URL) global.URL = {};
 if (!global.URL.$$objects) {
@@ -62,16 +64,38 @@ global.Worker = function Worker(url) {
 			outside.emit('message', { data });
 		},
 		fetch: global.fetch,
-		importScripts() {}
+		importScripts(filename) {
+			console.log('importScript:', filename);
+			if (filename.startWith('http')) {
+				global.fetch(filename)
+					.then(r => r.text())
+					.then(code => {
+						console.log(code.slice(-100));
+						vm.runInThisContext(code);
+					})
+					.catch(e => {
+						outside.emit('error', e);
+						console.error(e);
+					});
+			}
+			else {
+				const code = fs.readFileSync(filename, 'utf-8');
+				console.log(code.slice(-100));
+				vm.runInThisContext(code);
+			}
+		}
 	};
 	inside.on('message', e => {
 		let f = scope.onmessage || getScopeVar('onmessage');
+		console.log('inside worker message', f);
+		console.log(e);
 		if (f) f.call(scope, e);
 	});
 	this.addEventListener = outside.on;
 	this.removeEventListener = outside.off;
 	this.dispatchEvent = outside.emit;
 	outside.on('message', e => {
+		console.log('outside worker message');
 		if (this.onmessage) this.onmessage(e);
 	});
 	this.postMessage = data => {
@@ -84,10 +108,14 @@ global.Worker = function Worker(url) {
 	global.fetch(url)
 		.then(r => r.text())
 		.then(code => {
+			const clean = code.replace(/[\n\r\s\t]+/g, ' ');
+			console.log('fetch code:', code);
+			console.log('fetch code cleaned:', clean);
 			let vars = 'var self=this,global=self';
 			for (let k in scope) vars += `,${k}=self.${k}`;
+			console.log(vars + ';\n' + clean + '\nreturn function(n){console.log("onmessage:",n,onmessage,typeof onmessage);return n=="onmessage"?onmessage:null;}');
 			getScopeVar = Function(
-				vars + ';\n' + code + '\nreturn function(n){return n=="onmessage"?onmessage:null;}'
+				vars + ';\n' + clean + '\nreturn function(n){console.log("onmessage:",n,onmessage,typeof onmessage);return n=="onmessage"?onmessage:null;}'
 			).call(scope);
 			let q = messageQueue;
 			messageQueue = null;

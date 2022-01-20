@@ -53,10 +53,8 @@
     "eslint": "^7.2.0",
     "eslint-config-developit": "^1.1.1",
     "jest": "^26.0.1",
-    "microbundle": "^0.12.1"
-  },
-  "peerDependencies": {
-    "cross-fetch": "*"
+    "microbundle": "^0.12.1",
+    "vm": "^0.1.0"
   },
   "dependencies": {
     "mitt": "^1.1.3",
