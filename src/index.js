@@ -128,12 +128,12 @@ global.Worker = function Worker(url) {
 			// ).call(scope);
 
 // TODO: defined string works, but received response does not work! despite the fact that the resposne headers are set to text.plain;charset=UTF-8
-			code = `console.log(self);
-importScripts("https://localhost.localstack.cloud/figpii-statics/recorder-worker.min.js");
-onmessage = e => {
-	console.log('imported worker message');
-	RecorderWorker.handleAction(e);
-}`;
+// 			code = `console.log(self);
+// importScripts("https://localhost.localstack.cloud/figpii-statics/recorder-worker.min.js");
+// onmessage = e => {
+// 	console.log('imported worker message');
+// 	RecorderWorker.handleAction(e);
+// }`;
 			let vars = 'var self=this,global=self';
 			for (let k in scope) vars += `,${k}=self.${k}`;
 			let logic = `${vars};
