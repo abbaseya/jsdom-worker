@@ -49,12 +49,15 @@
   "devDependencies": {
     "@babel/preset-env": "^7.10.2",
     "babel-jest": "^26.0.1",
-    "cross-fetch": "^3.1.4",
     "eslint": "^7.2.0",
     "eslint-config-developit": "^1.1.1",
     "jest": "^26.0.1",
     "microbundle": "^0.12.1",
-    "vm": "^0.1.0"
+    "node-fetch": "^2.6.0",
+    "sync-request": "^6.1.0"
+  },
+  "peerDependencies": {
+    "node-fetch": "*"
   },
   "dependencies": {
     "mitt": "^1.1.3",

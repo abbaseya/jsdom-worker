@@ -1,7 +1,8 @@
 import mitt from 'mitt';
 import uuid from 'uuid-v4';
-import fetch, { Response } from 'cross-fetch';
+import fetch, { Response } from 'node-fetch'; // stick to version ^2.6.0 here and at the peerDependency (i.e. coyote repo) - to avoid jest issues
 import fs from 'fs';
+import request from 'sync-request';
 const vm = require('vm');// vm must be in the global context to work properly
 
 if (!global.URL) global.URL = {};
@@ -64,25 +65,36 @@ global.Worker = function Worker(url) {
 			outside.emit('message', { data });
 		},
 		fetch: global.fetch,
-		importScripts(filename) {
-			console.log('importScript:', filename);
-			if (filename.startWith('http')) {
-				global.fetch(filename)
-					.then(r => r.text())
-					.then(code => {
-						console.log(code.slice(-100));
-						vm.runInThisContext(code);
-					})
-					.catch(e => {
+		importScripts(...scripts) {
+			let combined = [];
+			for (const script of scripts) {
+				console.log('importScript:', script);
+				let code = '';
+				if (script.indexOf('http') === 0) {
+					try {
+						code = request('GET', script).getBody();
+					}
+					catch (e) {
 						outside.emit('error', e);
 						console.error(e);
-					});
+					}
+				}
+				else {
+					code = fs.readFileSync(script, 'utf-8');
+				}
+				// console.log(code.slice(0, 100), '...', code.slice(-100));
+				// const script = vm.createScript(code);
+				// script.runInThisContext();
+				combined.push(code);
 			}
-			else {
-				const code = fs.readFileSync(filename, 'utf-8');
-				console.log(code.slice(-100));
-				vm.runInThisContext(code);
-			}
+			// TODO: this should run in worker context and not the global!
+			// vm.runInThisContext(combined.join('\n'));
+			vm.runInThisContext('var RecorderWorker = {handleAction: function(e) {console.log("mock RecorderWorker.handleAction:", e);}};console.log(this);');
+			// vm.runInThisContext('console.log(this);'+combined.join('\n'));
+			// eval(combined.join('\n'));
+			// return eval.call(scope, combined.join('\n'));
+			// return Function('return (' + combined.join('\n') + ')').bind(scope)();
+			// return combined.join('\n');
 		}
 	};
 	inside.on('message', e => {
@@ -105,18 +117,32 @@ global.Worker = function Worker(url) {
 	this.terminate = () => {
 		throw Error('Not Supported');
 	};
-	global.fetch(url)
+	global.fetch(url, { insecureHTTPParser: true })
 		.then(r => r.text())
 		.then(code => {
-			const clean = code.replace(/[\n\r\s\t]+/g, ' ');
-			console.log('fetch code:', code);
-			console.log('fetch code cleaned:', clean);
+			// const clean = code.replace(/[\n\r\s\t]+/g, ' ');
+			// let vars = 'var self=this,global=self';
+			// for (let k in scope) vars += `,${k}=self.${k}`;
+			// getScopeVar = Function(
+			// 	vars + ';\n' + clean + '\nreturn function(n){return n=="onmessage"?onmessage:null;}'
+			// ).call(scope);
+
+// TODO: defined string works, but received response does not work! despite the fact that the resposne headers are set to text.plain;charset=UTF-8
+			code = `console.log(self);
+importScripts("https://localhost.localstack.cloud/figpii-statics/recorder-worker.min.js");
+onmessage = e => {
+	console.log('imported worker message');
+	RecorderWorker.handleAction(e);
+}`;
 			let vars = 'var self=this,global=self';
 			for (let k in scope) vars += `,${k}=self.${k}`;
-			console.log(vars + ';\n' + clean + '\nreturn function(n){console.log("onmessage:",n,onmessage,typeof onmessage);return n=="onmessage"?onmessage:null;}');
-			getScopeVar = Function(
-				vars + ';\n' + clean + '\nreturn function(n){console.log("onmessage:",n,onmessage,typeof onmessage);return n=="onmessage"?onmessage:null;}'
-			).call(scope);
+			let logic = `${vars};
+${code}
+return function(n){return n=="onmessage"?onmessage:null;}`;
+			// logic = logic.replace(/^(importScripts.*);$/gm, 'eval($1);');
+			console.log('logic:', logic.slice(0, 400), '...', logic.slice(-100));
+			getScopeVar = Function(logic).call(scope);
+			console.log('getScopeVar:', getScopeVar('onmessage'));
 			let q = messageQueue;
 			messageQueue = null;
 			q.forEach(this.postMessage);
