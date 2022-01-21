@@ -88,8 +88,8 @@ global.Worker = function Worker(url) {
 				combined.push(code);
 			}
 			// TODO: this should run in worker context and not the global!
-			// vm.runInThisContext(combined.join('\n'));
-			vm.runInThisContext('var RecorderWorker = {handleAction: function(e) {console.log("mock RecorderWorker.handleAction:", e);}};console.log(this);');
+			vm.runInThisContext(combined.join('\n'));
+			// vm.runInThisContext('var RecorderWorker = {handleAction: function(e) {console.log("mock RecorderWorker.handleAction:", e);}};console.log(this);');
 			// vm.runInThisContext('console.log(this);'+combined.join('\n'));
 			// eval(combined.join('\n'));
 			// return eval.call(scope, combined.join('\n'));
